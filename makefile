@@ -1,7 +1,7 @@
 CC=gcc 
-BIN=DecodeMessage
+BIN=DecodeMessageUpdated
 FLAGS= -g -Wall -Wextra -Wno-unused-parameter 
-SRCS=DecodeMessage.c 
+SRCS=$(BIN).c 
 INC= 
 
 OBJS = $(SRCS:.c=.o)
