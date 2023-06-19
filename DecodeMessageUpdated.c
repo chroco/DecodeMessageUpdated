@@ -11,6 +11,18 @@
 // Example: The characters "41" convert to 0x41 or 'A' ASCII.
 // Special characters for this exercise: EF is a line ending, FF ends the message.
 
+/*
+ *  assumptions
+ *  - only newline characters cause numberOfLines to be incremented.
+ *    (so only 2 lines are counted but 3 are shown on output)
+ *  
+ *  limitations
+ *  - only an even number of characters in the message are processed. an odd
+ *    number of characters in a message result in the last odd character being ignored
+ *  - if errors are encountered the program ends.
+ *
+ */
+
 #include "stdio.h"
 
 char const * pMessage = {
@@ -24,68 +36,130 @@ char const * pMessage = {
     "206F7665723F20436865636B21EF"
 };
 
-// if ascii character is lower case return it in upper case
+/*
+ * myToUpper
+ *
+ * if ascii character is lower case return it in upper case
+ *
+ */
+
 char myToUpper(const char c)
 {
-  if (c >= 'a'  && c <= 'z')
+  if ('a' <= c && c <= 'z')
   {
-    return 'A' + (c - 'a');
+    return c - 'a' + 'A'; // calculates and returns upper case
   }
 
   return c;
 }
 
-// check if ascii character is a valid hex character
+/* 
+ * isHexDigit
+ *
+ * check if ascii character is a valid hex character
+ * 
+ * return 0 FALSE
+ * return 1 TRUE
+ */
+
 int isHexDigit(const char c)
 {
   char temp = myToUpper(c);
   
-  if((temp >= '0' && temp <= '9') || (temp  >= 'A' && temp <= 'F'))
+  if(('0' <= temp && temp <= '9') || ('A' <= temp && temp <= 'F'))
   {
     return 1;
+  }
+
+  return 0; 
+}
+
+/* 
+ * hexToAscii
+ *
+ * if c is a hex digit, subtract offset and pass it out via *pOutput
+ * 
+ * return 0 success
+ * return 1 failure
+ *
+ */ 
+
+int hexToAscii(const char c, char *pOutput)
+{
+  char temp = myToUpper(c);
+  if(!pOutput)
+  {
+    printf("Error in hexToAscii: *pOutput is NULL\n");
+    
+    return 1;
+  }
+
+  if(!isHexDigit(temp))
+  {
+    printf("Error in hexToAscii: not a hex number\n");
+    
+    return 1;
+  }
+  
+  if('0' <= temp && temp <= '9')
+  {
+    *pOutput = temp - '0'; 
+  }
+  else if ('A' <= temp && temp <= 'Z')
+  {
+    *pOutput = temp - 'A' + 0xA;
   }
 
   return 0;
 }
 
-// return hex as ascii
-char hexToAscii(const char c)
+/*
+ * asciiHexToAscii
+ *
+ * converts 2 ascii encoded hex numbers into a hex number interpreted as ascii
+ * converted number is passed out via pOutput
+ * return 0 success
+ * return 1 failure
+ *
+ */
+
+int asciiHexToAscii(const char *pMessage, const int index, char *pOutput)
 {
-  char temp = myToUpper(c);
-  
-  if(isHexDigit(temp))
+  if(!pOutput)
   {
-    if(temp >= '0' && temp <= '9')
-    {
-      return temp - '0';
-    }
-    else if (temp >= 'A' && temp <= 'Z')
-    {
-      return temp - 'A' + 0xA;
-    }
+    printf("Error in asciiHexToAscii: *pOutput is NULL\n");
+    
+    return 1;
   }
 
-  printf("Error in hexToAscii\n");
-
-  return -1;
-}
-
-char asciiHexToAscii(const char *pMessage, const int index)
-{
   if(!pMessage)
   {
-    printf("asciiHexToAscii, no pMessage\n");
-    return -1;
+    printf("Error in asciiHexToAscii: *pMessage is NULL\n");
+    
+    return 1; 
   }
 
-  char hex[2] = { pMessage[index], pMessage[index +  1] };
-  hex[0] = hexToAscii(hex[0]);
-  hex[1] = hexToAscii(hex[1]);
+  char temp[2] = { pMessage[index], pMessage[index +  1] };
+  
+  if(hexToAscii(temp[0], &temp[0]) || hexToAscii(temp[1], &temp[1]))
+  {
+    return 1;
+  }
+  
+  *pOutput = (temp[0] << 4) + temp[1];
 
-  return (hex[0] << 4) + hex[1]; 
+  return 0; 
 }
 
-// DecodeAndPrint() decodes a single message
+/*
+ * DecodeAndPrint() 
+ *
+ * decodes a single message
+ *
+ * returns number of counted newlines
+ *
+ */
+
 int DecodeAndPrint(const char *pMessage)
 {
   /*
@@ -95,14 +169,12 @@ int DecodeAndPrint(const char *pMessage)
   */
 
   int i = 0;
+  int error = 0;
   int numberOfLines = 0;
-  char ascii = 0;
-  
   
   if(!pMessage)
   {
-    printf("\nError, no message!");
-    
+    printf("Error in DecodeAndPrint: *pMessage is NULL\n");
     return 0; // returns 0 because no lines are parsed
   }
  
@@ -123,14 +195,17 @@ int DecodeAndPrint(const char *pMessage)
       }
       else
       {
-        ascii = asciiHexToAscii(pMessage, i - 1);
-        if(ascii >= 0)
+        char ascii = 0;  
+        
+        error = asciiHexToAscii(pMessage, i - 1, &ascii);
+        
+        if(!error) 
         {
-          printf("%c", ascii );// print each character to stdout
+          printf("%c", ascii);// print each character to stdout
         }
         else
         {
-          printf("Error in DecodeAndPrint\n");
+          printf("Error in DecodeAndPrint. Cowardly running away!n");
           return numberOfLines;
         }
       }
