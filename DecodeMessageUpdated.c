@@ -19,7 +19,7 @@
  *  limitations
  *  - only an even number of characters in the message are processed. an odd
  *    number of characters in a message result in the last odd character being ignored
- *  - if errors are encountered the program ends.
+ *  - if errors are encountered the program gracefully exits.
  *
  */
 
@@ -47,7 +47,7 @@ char myToUpper(const char c)
 {
   if ('a' <= c && c <= 'z')
   {
-    return c - 'a' + 'A'; // calculates and returns upper case
+    return c - 'a' + 'A'; 
   }
 
   return c;
@@ -117,7 +117,8 @@ int hexToAscii(const char c, char *pOutput)
  * asciiHexToAscii
  *
  * converts 2 ascii encoded hex numbers into a hex number interpreted as ascii
- * converted number is passed out via pOutput
+ * converted number is passed out via *pOutput
+ *
  * return 0 success
  * return 1 failure
  *
@@ -184,13 +185,14 @@ int DecodeAndPrint(const char *pMessage)
     {
       char temp[2] = {myToUpper(pMessage[i - 1]), myToUpper(pMessage[i])};
       
-      if(temp[0] == 'E' && temp[1] == 'F')
+      if(temp[0] == 'E' && temp[1] == 'F') // newline
       {
         ++numberOfLines;
         printf("\n"); // print newline
       }
-      else if(temp[0] == 'F' && temp[1] == 'F')
+      else if(temp[0] == 'F' && temp[1] == 'F') // end of message
       {
+        printf("\n\nEnd of Message character received!\n");
         return numberOfLines; // stop printing the message and return
       }
       else
@@ -223,7 +225,7 @@ int main()
   printf("\nMessage:\n\n%s\n", pMessage);
   printf("\nParsed message:\n\n");
   qty = DecodeAndPrint(pMessage);
-  printf("\n\nNumber of lines that were parsed: %d\r\n", qty);
+  printf("\nNumber of parsed newlines: %d\r\n", qty);
 
   return 0;
 }
