@@ -24,6 +24,7 @@ char const * pMessage = {
     "206F7665723F20436865636B21EF"
 };
 
+// if ascii character is lower case return it in upper case
 char myToUpper(const char c)
 {
   if (c >= 'a' && c <= 'z')
@@ -34,6 +35,7 @@ char myToUpper(const char c)
   return c;
 }
 
+// check if ascii character is a valid hex character
 int isHexDigit(const char c)
 {
   if((c >= '0' && c <= '9') || (c  >= 'A' && c <= 'F'))
@@ -44,6 +46,7 @@ int isHexDigit(const char c)
   return 0;
 }
 
+// return hex as ascii
 char hexToAscii(const char c)
 {
   char temp = myToUpper(c);
@@ -56,7 +59,7 @@ char hexToAscii(const char c)
     }
     else if (temp >= 'A' && temp <= 'Z')
     {
-      return temp - 'A' + 10;
+      return temp - 'A' + 0xA;
     }
   }
 
@@ -90,8 +93,9 @@ int DecodeAndPrint(const char *pMessage)
 
   int i = 0;
   int numberOfLines = 0;
+  char ascii = 0;
   
-  if(pMessage == NULL)
+  if(!pMessage)
   {
     printf("\nError, no message!");
     
@@ -105,7 +109,7 @@ int DecodeAndPrint(const char *pMessage)
       if(pMessage[i - 1] == 'E' && pMessage[i] == 'F')
       {
         ++numberOfLines;
-        printf("\n"); // print new lines
+        printf("\n"); // print newline
       }
       else if(pMessage[i - 1] == 'F' && pMessage[i] == 'F')
       {
@@ -113,7 +117,16 @@ int DecodeAndPrint(const char *pMessage)
       }
       else
       {
-        printf("%c", asciiHexToAscii(pMessage, i - 1));// print each character to stdout
+        ascii = asciiHexToAscii(pMessage, i - 1);
+        if(ascii >= 0)
+        {
+          printf("%c", ascii );// print each character to stdout
+        }
+        else
+        {
+          printf("Error!\n");
+          return numberOfLines;
+        }
       }
     }
   }
@@ -126,8 +139,8 @@ int main()
 {
   int qty = 0;
   
-  printf("\nMessage:\n%s\n", pMessage);
-  printf("\nParsed message:\n");
+  printf("\nMessage:\n\n%s\n", pMessage);
+  printf("\nParsed message:\n\n");
   qty = DecodeAndPrint(pMessage);
   printf("\n\nNumber of lines that were parsed: %d\r\n", qty);
 
