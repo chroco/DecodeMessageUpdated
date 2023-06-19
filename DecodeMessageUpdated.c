@@ -27,9 +27,9 @@ char const * pMessage = {
 // if ascii character is lower case return it in upper case
 char myToUpper(const char c)
 {
-  if (c >= 'a' && c <= 'z')
+  if (c >= 'a'  && c <= 'z')
   {
-    return c - 'a' + 'A';
+    return 'A' + (c - 'a');
   }
 
   return c;
@@ -38,7 +38,9 @@ char myToUpper(const char c)
 // check if ascii character is a valid hex character
 int isHexDigit(const char c)
 {
-  if((c >= '0' && c <= '9') || (c  >= 'A' && c <= 'F'))
+  char temp = myToUpper(c);
+  
+  if((temp >= '0' && temp <= '9') || (temp  >= 'A' && temp <= 'F'))
   {
     return 1;
   }
@@ -63,7 +65,7 @@ char hexToAscii(const char c)
     }
   }
 
-  printf("Error!\n");
+  printf("Error in hexToAscii\n");
 
   return -1;
 }
@@ -72,6 +74,7 @@ char asciiHexToAscii(const char *pMessage, const int index)
 {
   if(!pMessage)
   {
+    printf("asciiHexToAscii, no pMessage\n");
     return -1;
   }
 
@@ -95,6 +98,7 @@ int DecodeAndPrint(const char *pMessage)
   int numberOfLines = 0;
   char ascii = 0;
   
+  
   if(!pMessage)
   {
     printf("\nError, no message!");
@@ -106,12 +110,14 @@ int DecodeAndPrint(const char *pMessage)
   {
     if(i % 2 == 1) // check characters 2 at a time
     {
-      if(pMessage[i - 1] == 'E' && pMessage[i] == 'F')
+      char temp[2] = {myToUpper(pMessage[i - 1]), myToUpper(pMessage[i])};
+      
+      if(temp[0] == 'E' && temp[1] == 'F')
       {
         ++numberOfLines;
         printf("\n"); // print newline
       }
-      else if(pMessage[i - 1] == 'F' && pMessage[i] == 'F')
+      else if(temp[0] == 'F' && temp[1] == 'F')
       {
         return numberOfLines; // stop printing the message and return
       }
@@ -124,7 +130,7 @@ int DecodeAndPrint(const char *pMessage)
         }
         else
         {
-          printf("Error!\n");
+          printf("Error in DecodeAndPrint\n");
           return numberOfLines;
         }
       }
